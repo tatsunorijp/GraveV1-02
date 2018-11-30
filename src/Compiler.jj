@@ -202,17 +202,18 @@ void valor():
 void valorArranjoNumber():
 {}
 {
-    <NUMBER> [<COMMA> valorArranjoNumber()]
+    <NUMBER> [<COMMA> valorArranjoNumber()] <SEMICOLON>
 }
+
 void valorArranjoBoolean():
 {}
 {
-    <BOOLEAN> [<COMMA> valorArranjoBoolean()]
+    <BOOLEAN> [<COMMA> valorArranjoBoolean()] <SEMICOLON>
 }
 void valorArranjoString():
 {}
 {
-    <WORD> [<COMMA> valorArranjoString()]
+    <WORD> [<COMMA> valorArranjoString()] <SEMICOLON>
 }
 
 
@@ -220,19 +221,23 @@ void valorArranjoString():
 void decSub():
 {}
 {
-    decProc() | decFunc()
+
+    <DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> (decProc() | decFunc())
+    //decProc() | decFunc()
 }
 
 void decProc():
 {}
 {
-    <DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> bloco()
+    bloco()
+    //<DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> bloco()
 }
 
 void decFunc():
 {}
 {
-    <DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> tipo() bloco()
+    tipo() bloco()
+    //<DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> tipo() bloco()
 }
 
 /////////////////////////////////////////////////////////////LISTA DE PARÂMETROS
@@ -251,7 +256,8 @@ void specParams():
 void param():
 {}
 {
-    <IDENTIFIER> | <IDENTIFIER> <LBRACKET><RBRACKET>
+    //<IDENTIFIER> | <IDENTIFIER> <LBRACKET><RBRACKET>
+    <IDENTIFIER> [<LBRACKET><RBRACKET>]
 }
 
 /////////////////////////////////////////////////////////////COMANDOS SIMPLES E BLOCOS DE COMANDOS
@@ -421,32 +427,38 @@ void MultiplicativeExpression() : {}
 
 void UnaryExpression() : {}
 {
-  <LPARENTHESIS> expressao() <RPARENTHESIS> | Identifier() | NumberOrBool() | FuncCall()
+  <LPARENTHESIS> expressao() <RPARENTHESIS> | NumberOrBool() | FuncCallOrIdentifier()
+}
+
+void FuncCallOrIdentifier():{}
+{
+    <IDENTIFIER> [FuncCall()]
 }
 
 void FuncCall() : {}
 {
-    <IDENTIFIER> <LPARENTHESIS> (expressao() [<COLON> expressao()]) <RPARENTHESIS> <SEMICOLON>
+    /*<IDENTIFIER> */<LPARENTHESIS> (expressao() [<COLON> expressao()]) <RPARENTHESIS> <SEMICOLON>
 }
 
-void Identifier() : {}
+/*void Identifier() : {}
 {
   <IDENTIFIER>
-}
+}*/
 
+//  ADICIONADO SEMICOLON NO FINAL DESSAS TRES FUNÇÕES
 void NumberOrBool() : {}
 {
     //[<MINUS> | <NEGATION>] (<NUMBER> | <BOOL>)
-    Number() | Bool() | <WORD>
+    Number() | Bool() | <WORD> <SEMICOLON>
 }
 
 void Number():{}
 {
-    [<MINUS>] <NUMBER>
+    [<MINUS>] <NUMBER> <SEMICOLON>
 }
 void Bool():{}
 {
-    [<NEGATION>] <BOOL>
+    [<NEGATION>] <BOOL> <SEMICOLON>
 }
 
 ///////////////////////////////////////////////////////////// OPERADORES:
