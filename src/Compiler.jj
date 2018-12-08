@@ -46,36 +46,29 @@ TOKEN_MGR_DECLS:{ //CONTADOR DE ERROS
         }
 }
 
-SKIP:{ // TOKENS IGNORADOS
-     " "
-    | "\r"
-    | "\t"
-    | "\n"
-    | <COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
 
-}
 TOKEN:{ //PALAVRAS RESERVADAS
 
-    <BOOL: "bool">{System.out.println("Reserved word: "+image);}
-    |<DEF: "def">{System.out.println("Reserved word: "+image);}
-    |<ELSE: "else">{System.out.println("Reserved word: "+image);}
-    |<FOR: "for">{System.out.println("Reserved word: "+image);}
-    |<IF: "if">{System.out.println("Reserved word: "+image);}
-    |<INT: "int">{System.out.println("Reserved word: "+image);}
+    <BOOL: "bool">{System.out.println("Reserved word: "+image);}    //1
+    |<DEF: "def">{System.out.println("Reserved word: "+image);} //2
+    |<ELSE: "else">{System.out.println("Reserved word: "+image);}   //3
+    |<FOR: "for">{System.out.println("Reserved word: "+image);} //4
+    |<IF: "if">{System.out.println("Reserved word: "+image);}   //5
+    |<INT: "int">{System.out.println("Reserved word: "+image);} //6
     |<READ: "read">{System.out.println("Reserved word: "+image);}
     |<RETURN: "return">{System.out.println("Reserved word: "+image);}
     |<CONTINUE: "skip">{System.out.println("Reserved word: "+image);}
     |<STOP: "stop">{System.out.println("Reserved word: "+image);}
-    |<STRING: "string">{System.out.println("Reserved word: "+image);}
-    |<VAR: "var">{System.out.println("Reserved word: "+image);}
-    |<WHILE: "while">{System.out.println("Reserved word: "+image);}
-    |<WRITE: "write">{System.out.println("Reserved word: "+image);}
-    |<MAIN:"main">{System.out.println("Reserved word: "+image);}
+    |<STRING: "string">{System.out.println("Reserved word: "+image);}   //11
+    |<VAR: "var">{System.out.println("Reserved word: "+image);} //12
+    |<WHILE: "while">{System.out.println("Reserved word: "+image);} //13
+    |<WRITE: "write">{System.out.println("Reserved word: "+image);} //14
+    |<MAIN:"main">{System.out.println("Reserved word: "+image);}    //15
 }
 
 TOKEN:{ //SÍMBOLOS
-    <LPARENTHESIS: "(">{System.out.println("Symbol: "+image);}
-    |<RPARENTHESIS: ")">{System.out.println("Symbol: "+image);}
+    <LPARENTHESIS: "(">{System.out.println("Symbol: "+image);}  //16
+    |<RPARENTHESIS: ")">{System.out.println("Symbol: "+image);} //17
     |<LBRACKET: "[">{System.out.println("Symbol: "+image);}
     |<RBRACKET: "]">{System.out.println("Symbol: "+image);}
     |<LKEYS: "{">{System.out.println("Symbol: "+image);}
@@ -111,14 +104,21 @@ TOKEN:{ //PRIMITIVOS
     |<BOOLEAN: "true" | "false"> {System.out.println("Boolean: "+image);}
     |<WORD: "\"" (~["\""])* "\"" > {System.out.println("Word: "+image);}
     |<IDENTIFIER: ["a"-"z", "A"-"Z", "_"](["a"-"z", "A"-"Z", "0"-"9", "_"])*>{System.out.println("Identifier: "+image);}
+}
 
+SKIP:{ // TOKENS IGNORADOS
+     " "
+    | "\r"
+    | "\t"
+    | "\n"
+    | <COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
 }
 
 /*       TOKEN: { <OPEN_STRING: "\"">{System.out.println("Open String: "+image);}: WORD }
 <WORD> TOKEN: { <STRING_BODY: ("\\\\" | "\\\"" | ~["\"", "\\"])+>{System.out.println("String Body: "+image);} }
 <WORD> TOKEN: { <CLOSE_STRING: "\"">{System.out.println("Close String: "+image);}: DEFAULT }*/
 
-SPECIAL_TOKEN:{
+/*SPECIAL_TOKEN:{
 <INVALIDO_LEXICO:(~[" ","\t","\n","\r","\f"])+>
 {
     countLexError++;
@@ -126,7 +126,7 @@ SPECIAL_TOKEN:{
     " Token invalido encontrado: " + image + " "+"TOTAL DE ERROS "+countLexError);
     System.out.println("Erro Lexico ------> "+image);
 }
-}
+}*/
 
 
 /////////////////////////////////////////////////////PROGRAMA
@@ -140,6 +140,7 @@ void programa():
 void dec():
 {}
 {
+
     decVar() | decSub()
 }
 
@@ -159,7 +160,8 @@ void listaSpecVars():
 void tipo():
 {}
 {
-    <STRING>|<INT>|<BOOL>
+
+    <STRING>|<INT>{System.out.println("kind: " + token.kind);}|<BOOL>
 }
 
 ///////////////////////////////////////////////////////////// FATORAÇÃO A ESQUERDA
