@@ -1,0 +1,9 @@
+var a,b: int;
+
+def main(){
+    var i = 0: int;
+    for(i = 0; i< 10; i++){
+        var a = i: int;
+    }
+
+}
