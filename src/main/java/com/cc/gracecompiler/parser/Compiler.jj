@@ -30,6 +30,7 @@ PARSER_BEGIN(Compiler)
             }catch(Throwable e){
                 System.out.println(e.getMessage()); //Mensagem de erro léxico (em ingles) mostrando linha e coluna
                 System.out.println("Errors detected");
+                e.printStackTrace();
             }
         }
     }
@@ -46,62 +47,62 @@ TOKEN_MGR_DECLS:{ //CONTADOR DE ERROS
 
 TOKEN:{ //PALAVRAS RESERVADAS
 
-    <BOOL: "bool">//{System.out.println("Reserved word: "+image);}    //1
-    |<DEF: "def">//{System.out.println("Reserved word: "+image);} //2
-    |<ELSE: "else">//{System.out.println("Reserved word: "+image);}   //3
-    |<FOR: "for">//{System.out.println("Reserved word: "+image);} //4
-    |<IF: "if">//{System.out.println("Reserved word: "+image);}   //5
-    |<INT: "int">//{System.out.println("Reserved word: "+image);} //6
-    |<READ: "read">//{System.out.println("Reserved word: "+image);} //7
-    |<RETURN: "return">//{System.out.println("Reserved word: "+image);} //8
-    |<CONTINUE: "skip">//{System.out.println("Reserved word: "+image);} //9
-    |<STOP: "stop">//{System.out.println("Reserved word: "+image);} //10
-    |<STRING: "string">//{System.out.println("Reserved word: "+image);}   //11
-    |<VAR: "var">//{System.out.println("Reserved word: "+image);} //12
-    |<WHILE: "while">//{System.out.println("Reserved word: "+image);} //13
-    |<WRITE: "write">//{System.out.println("Reserved word: "+image);} //14
-    |<VOID:"void">//{System.out.println("Reserved word: "+image);}    //15
+    <BOOL: "bool">{System.out.println("Reserved word: "+image);}    //1
+    |<DEF: "def">{System.out.println("Reserved word: "+image);} //2
+    |<ELSE: "else">{System.out.println("Reserved word: "+image);}   //3
+    |<FOR: "for">{System.out.println("Reserved word: "+image);} //4
+    |<IF: "if">{System.out.println("Reserved word: "+image);}   //5
+    |<INT: "int">{System.out.println("Reserved word: "+image);} //6
+    |<READ: "read">{System.out.println("Reserved word: "+image);} //7
+    |<RETURN: "return">{System.out.println("Reserved word: "+image);} //8
+    |<CONTINUE: "skip">{System.out.println("Reserved word: "+image);} //9
+    |<STOP: "stop">{System.out.println("Reserved word: "+image);} //10
+    |<STRING: "string">{System.out.println("Reserved word: "+image);}   //11
+    |<VAR: "var">{System.out.println("Reserved word: "+image);} //12
+    |<WHILE: "while">{System.out.println("Reserved word: "+image);} //13
+    |<WRITE: "write">{System.out.println("Reserved word: "+image);} //14
+    |<VOID:"void">{System.out.println("Reserved word: "+image);}    //15
 }
 
 TOKEN:{ //SÍMBOLOS
-    <LPARENTHESIS: "(">//{System.out.println("Symbol: "+image);}  //16
-    |<RPARENTHESIS: ")">//{System.out.println("Symbol: "+image);} //17
-    |<LBRACKET: "[">//{System.out.println("Symbol: "+image);} //18
-    |<RBRACKET: "]">//{System.out.println("Symbol: "+image);} //19
-    |<LKEYS: "{">//{System.out.println("Symbol: "+image);} //20
-    |<RKEYS: "}">//{System.out.println("Symbol: "+image);} //21
-    |<COMMA: ",">//{System.out.println("Symbol: "+image);} //22
-    |<SEMICOLON: ";">//{System.out.println("Symbol: "+image);} //23
-    |<QUOTE: "\"">//{System.out.println("Symbol: "+image);} //24
-    |<PLUS: "+">//{System.out.println("Symbol: "+image);} //25
-    |<MINUS: "-">//{System.out.println("Symbol: "+image);} //26
-    |<TIMES: "*">//{System.out.println("Symbol: "+image);} //27
-    |<DIVISION: "/">//{System.out.println("Symbol: "+image);} //28
-    |<PERCENT: "%">//{System.out.println("Symbol: "+image);} //29
-    |<EQUALS: "==">//{System.out.println("Symbol: "+image);} //30
-    |<DIFERENT: "!=">//{System.out.println("Symbol: "+image);} //31
-    |<BIGGEREQUAL: ">=">//{System.out.println("Symbol: "+image);} //32
-    |<BIGGER: ">">//{System.out.println("Symbol: "+image);} //33
-    |<SMALLEREQUAL: "<=">//{System.out.println("Symbol: "+image);} //34
-    |<SMALLER: "<">//{System.out.println("Symbol: "+image);} //35
-    |<OR: "||">//{System.out.println("Symbol: "+image);} //36
-    |<AND: "&&">//{System.out.println("Symbol: "+image);} //37
-    |<NEGATION: "!">//{System.out.println("Symbol: "+image);} //38
-    |<PLUSEQUAL: "+=">//{System.out.println("Symbol: "+image);} //39
-    |<MINUSEQUAL: "-=">//{System.out.println("Symbol: "+image);} //40
-    |<ASTERISKEQUAL: "*=">//{System.out.println("Symbol: "+image);} //41
-    |<DIVISIONEQUAL: "/=">//{System.out.println("Symbol: "+image);} //42
-    |<PERCENTEQUAL: "%=">//{System.out.println("Symbol: "+image);} //43
-    |<ATTRIBUTION: "=">//{System.out.println("Symbol: "+image);} //44
-    |<QUESTION: "?">//{System.out.println("Symbol: "+image);} //45
-    |<COLON: ":">//{System.out.println("Symbol: "+image);} //46
+    <LPARENTHESIS: "(">{System.out.println("Symbol: "+image);}  //16
+    |<RPARENTHESIS: ")">{System.out.println("Symbol: "+image);} //17
+    |<LBRACKET: "[">{System.out.println("Symbol: "+image);} //18
+    |<RBRACKET: "]">{System.out.println("Symbol: "+image);} //19
+    |<LKEYS: "{">{System.out.println("Symbol: "+image);} //20
+    |<RKEYS: "}">{System.out.println("Symbol: "+image);} //21
+    |<COMMA: ",">{System.out.println("Symbol: "+image);} //22
+    |<SEMICOLON: ";">{System.out.println("Symbol: "+image);} //23
+    |<QUOTE: "\"">{System.out.println("Symbol: "+image);} //24
+    |<PLUS: "+">{System.out.println("Symbol: "+image);} //25
+    |<MINUS: "-">{System.out.println("Symbol: "+image);} //26
+    |<TIMES: "*">{System.out.println("Symbol: "+image);} //27
+    |<DIVISION: "/">{System.out.println("Symbol: "+image);} //28
+    |<PERCENT: "%">{System.out.println("Symbol: "+image);} //29
+    |<EQUALS: "==">{System.out.println("Symbol: "+image);} //30
+    |<DIFFERENT: "!=">{System.out.println("Symbol: "+image);} //31
+    |<BIGGEREQUAL: ">=">{System.out.println("Symbol: "+image);} //32
+    |<BIGGER: ">">{System.out.println("Symbol: "+image);} //33
+    |<SMALLEREQUAL: "<=">{System.out.println("Symbol: "+image);} //34
+    |<SMALLER: "<">{System.out.println("Symbol: "+image);} //35
+    |<OR: "||">{System.out.println("Symbol: "+image);} //36
+    |<AND: "&&">{System.out.println("Symbol: "+image);} //37
+    |<NEGATION: "!">{System.out.println("Symbol: "+image);} //38
+    |<PLUSEQUAL: "+=">{System.out.println("Symbol: "+image);} //39
+    |<MINUSEQUAL: "-=">{System.out.println("Symbol: "+image);} //40
+    |<ASTERISKEQUAL: "*=">{System.out.println("Symbol: "+image);} //41
+    |<DIVISIONEQUAL: "/=">{System.out.println("Symbol: "+image);} //42
+    |<PERCENTEQUAL: "%=">{System.out.println("Symbol: "+image);} //43
+    |<ATTRIBUTION: "=">{System.out.println("Symbol: "+image);} //44
+    |<QUESTION: "?">{System.out.println("Symbol: "+image);} //45
+    |<COLON: ":">{System.out.println("Symbol: "+image);} //46
 }
 
 TOKEN:{ //PRIMITIVOS
-    <NUMBER: ["0"-"9"] (["0"-"9"])* >//{System.out.println("Number: "+image);} //47
-    |<BOOLEAN: "true" | "false"> //{System.out.println("Boolean: "+image);} //48
-    |<WORD: <QUOTE> (~["\""])* <QUOTE>>//{System.out.println("Word: "+image);} //49
-    |<IDENTIFIER: ["a"-"z", "A"-"Z", "_"](["a"-"z", "A"-"Z", "0"-"9", "_"])*>//{System.out.println("Identifier: "+image);} //50
+    <NUMBER: ["0"-"9"] (["0"-"9"])* >{System.out.println("Number: "+image);} //47
+    |<BOOLEAN: "true" | "false"> {System.out.println("Boolean: "+image);} //48
+    |<WORD: <QUOTE> (~["\""])* <QUOTE>>{System.out.println("Word: "+image);} //49
+    |<IDENTIFIER: ["a"-"z", "A"-"Z", "_"](["a"-"z", "A"-"Z", "0"-"9", "_"])*>{System.out.println("Identifier: "+image);} //50
 }
 
 SKIP:{ // TOKENS IGNORADOS
@@ -155,7 +156,7 @@ void decVar():
 
             Compiler.pilhaDeEscopos.peek().inserirSimbolo(var.token, var);
         }
-
+        System.out.println("ola decvar");
     }
 }
 
@@ -165,8 +166,10 @@ List<Variavel> listaSpecVars():
     Variavel var = null;
 }
 {
+
     (var = specVar(){vars.add(var);} (<COMMA>  var = specVar(){vars.add(var);})*)
     {
+        System.out.println("ola listaspecvars");
         return vars;
     }
 }
@@ -175,7 +178,7 @@ Tipo tipo():
 {
 }
 {
-    (<STRING>){return Tipo.STRING;}
+    (<WORD>){return Tipo.WORD;}
     |(<INT>){return Tipo.INT;}
     |(<BOOL>){return Tipo.BOOL;}
 }
@@ -184,7 +187,7 @@ Tipo tipoRetSub():
 {
 }
 {
-    (<STRING>){return Tipo.STRING;}
+    (<WORD>){return Tipo.WORD;}
     |(<INT>){return Tipo.INT;}
     |(<BOOL>){return Tipo.BOOL;}
     |(<VOID>){return Tipo.VOID;}
@@ -196,7 +199,8 @@ Variavel specVar():
     Variavel var = new Variavel();
 }
 {
-    (var.token = <IDENTIFIER>(specVarSimplesInit() | var.arranjo = specVarArranjo())?){
+    (var.token = <IDENTIFIER>(var.arranjo = specVarArranjo() | specVarSimplesInit())?){
+        System.out.println("ola specvar");
         return var;
     }
 }
@@ -210,8 +214,9 @@ void specVarSimplesInit():
 
 Boolean specVarArranjo():
 {}{
-    (<LBRACKET> expressao() <RBRACKET> (specVarArranjoInit())?)
+    (<LBRACKET> expressao() <RBRACKET> (specVarArranjoInit())? )
     {
+        System.out.println("ola specvararranjo");
         return true;
     }
 }
@@ -395,30 +400,10 @@ void cmdWhile():
 }
 
 /////////////////////////////////////////////////////////////LAÇO FOR
-//fazer atribIni e atribPasso
 void cmdFor():
 {}
 {
     <FOR> <LPARENTHESIS> <IDENTIFIER> atrib() <SEMICOLON> expressao() <SEMICOLON> <IDENTIFIER> atrib() <RPARENTHESIS> comando()
-}
-
-void atribIni():
-{}
-{
-    <IDENTIFIER> <ATTRIBUTION> expressao()
-}
-
-void atribPasso():
-{}
-{
-    <IDENTIFIER>
-
-    (<ATTRIBUTION>   expressao()) |
-    (<MINUSEQUAL>    expressao()) | <MINUS><MINUS> |
-    (<PLUSEQUAL>     expressao()) | <PLUS><PLUS> |
-    (<ASTERISKEQUAL> expressao()) | <TIMES><TIMES> |
-    (<DIVISIONEQUAL> expressao()) | <DIVISION><DIVISION> |
-    (<PERCENTEQUAL>  expressao())
 }
 
 /////////////////////////////////////////////////////////////INTERRUPÇÃO DE LAÇO
@@ -478,15 +463,123 @@ void variavelPartTwo():
 
 //////////////////////////////////////////////////////////// EXPRESSÁO
 
+//SEGUNDA SINTAXE
+
+void expressao():
+{}
+{
+    orexp()
+}
+
+/*void condexp():
+{}
+{
+    orexp() [ <QUESTION> expressao() <COLON> condexp() ]
+}*/
+
+void orexp():
+{}
+{
+    andexp() <OR> andexp() | andexp()
+}
+
+void andexp():
+{}
+{
+    equalityexp() <AND> equalityexp() | equalityexp()
+}
+
+void equalityexp():
+{}
+{
+    relationalexp() (<EQUALS> | <DIFFERENT>) relationalexp() | relationalexp()
+}
+
+void relationalexp():
+{}
+{
+    mulexp() (<BIGGEREQUAL> | <BIGGER> | <SMALLEREQUAL> | <SMALLER>) mulexp() | mulexp()
+}
+
+void mulexp():
+{}
+{
+    rootexp() (<TIMES> | <DIVISION> | <PERCENT>) rootexp() | rootexp()
+}
+
+//void mulexp():
+//{}
+//{
+//    //mulexp() (<TIMES> | <DIVISION> | <PERCENT>) rootexp() | rootexp()
+//    rootexp() mulexp2()
+//}
+//
+//void mulexp2():
+//{}
+//{
+//    ((<TIMES> | <DIVISION> | <PERCENT>) rootexp() mulexp2())?
+//}
+
+void rootexp():
+{}
+{
+    <LPARENTHESIS> expressao() <RPARENTHESIS> | unaryexp()
+}
+
+void unaryexp():
+{}
+{
+    (<PLUS> | <MINUS> | <NEGATION>) primaryexp()
+}
+
+void primaryexp():
+{}
+{
+    literal() | nome()
+}
+
+void literal():
+{
+    Token token = null;
+}
+{
+    (token = <NUMBER> | token = <BOOL> | token = <WORD>)
+    {
+        //return Tipo.getTipo(token.kind);
+    }
+}
+
+void nome():
+{
+    Token token;
+    Identificavel var = null;
+}
+{
+    (token = <IDENTIFIER> ( (<LBRACKET> expressao() <RBRACKET>) | cmdChamadaProc() )? )
+    {
+        /*var = Compiler.pilhaDeEscopos.peek().buscarSimbolo(token);
+        if(var==null){
+            throw new RuntimeException("ERRO: Identificavel " + token.image + " nao instanciado. \r\nLine: " + token.beginLine);
+        }
+
+        if(var.getTipo() == Tipo.VOID) throw new RuntimeException("ERRO: Subprograma " + token.image + " nao possui valor de retorno (tipo VOID). \r\nLine: " + token.beginLine);
+
+        return var.getTipo();*/
+    }
+}
+
+//PRIMEIRA SINTAXE
+/*
 void operadorTern():
 {}
 {
     expressao() <QUESTION> expressao() <COLON> expressao()
 }
 
-Expression expressao() : {}
+void expressao() :
+{}
 {
-    LogicalOR() | operadorTern()
+    LogicalOR() //asdasdsd
 }
 
 void LogicalOR() : {}
@@ -496,146 +589,83 @@ void LogicalOR() : {}
 
 void LogicalAND() : {}
 {
-    RelativeExpression2() ( <AND> RelativeExpression2())*
+    EqualityExpression() ( <AND> EqualityExpression())*
 }
 
-void RelativeExpression2() : {}
+void EqualityExpression() : {}
 {
-    RelativeExpression() (( <EQUALS> | <DIFERENT> ) RelativeExpression())*
+    RelativeExpression() (( <EQUALS> | <DIFFERENT> ) RelativeExpression())?
 }
 
 void RelativeExpression() :
+{}
 {
-    Token token;
-    Tipo t1, t2;
-}
-{
-    (AdditiveExpression() ( ( token = <MINUSEQUAL> | token = <SMALLER> | token = <BIGGEREQUAL> | token = <BIGGER> ) AdditiveExpression())*)
+    (AdditiveExpression() ( ( <MINUSEQUAL> | <SMALLER> | <BIGGEREQUAL> | <BIGGER> ) AdditiveExpression())?)
     {
-        if(t1 != Tipo.INT || t2 != Tipo.INT) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + token.beginLine);
-        return Tipo.BOOL;
+
     }
 }
 
-Tipo AdditiveExpression() :
+void AdditiveExpression() :
+{}
 {
-    Token token;
-    Tipo t1, t2;
-}
-{
-    (MultiplicativeExpression() ( ( token = <PLUS> | token = <MINUS> ) MultiplicativeExpression() )*)
+    (MultiplicativeExpression() ( ( <PLUS> |<MINUS> ) MultiplicativeExpression() )*)
     {
-        if(t1 != Tipo.INT || t2 != Tipo.INT) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + token.beginLine);
-        return Tipo.INT;
+
     }
 }
 
-Tipo MultiplicativeExpression() :
+void MultiplicativeExpression() :
+{}
 {
-    Token token;
-    Tipo t1, t2;
-    Expression exp;
-}
-{
-    (t1 = UnaryExpression() ( ( token = <TIMES> | token = <DIVISION> | token = <PERCENT> ) t2 = UnaryExpression() )*)
+    ( UnaryExpression() ( (  <TIMES> |  <DIVISION> | <PERCENT> ) UnaryExpression() )*)
     {
-        if(t1 != Tipo.INT || t2 != Tipo.INT) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + token.beginLine);
-        return Tipo.INT;
+
     }
 }
 
-Expression UnaryExpression() :
+void UnaryExpression() :
+{}
 {
-    Expression exp = null;
-}
-{
-    (<NEGATION> | <MINUS>)? (NumberOrBool() | SubCallOrIdentifier() | <LPARENTHESIS>  expressao() <RPARENTHESIS>)
-
-    (exp = NumberOrBool() | exp = SubCallOrIdentifier() | <LPARENTHESIS> exp = expressao() <RPARENTHESIS>)
+    (<NEGATION>| <MINUS>)? (<LPARENTHESIS>  expressao() <RPARENTHESIS> | NumberOrBool() | SubCallOrIdentifier())
     {
-        return exp;
+
     }
 }
 
-Expression SubCallOrIdentifier():
+void SubCallOrIdentifier():
+{}
 {
-    Token token;
-    Variavel = var;
+    <IDENTIFIER> SubCallOrIdentifierPartTwo()// APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
 }
-{
-    ((token = <IDENTIFIER>)
-        {
-            var = Compiler.pilhaDeEscopos.peek().buscaSimbolo(token);
-            if(var==null){
-                throw new RuntimeException("ERRO: Identificavel " + token.image + " nao instanciado. \r\nLine: " + token.beginLine);
-            }
-        }
-    SubCallOrIdentifierPartTwo())// APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
-    {
-        if(var.tipo == Tipo.VOID) throw new RuntimeException("ERRO: Subprograma " + token.image + " nao possui valor de retorno (tipo VOID). \r\nLine: " + token.beginLine);
-        return var.tipo;
-    }
-}
+
+
 void SubCallOrIdentifierPartTwo():{}
 {
     cmdChamadaProc() | (<LBRACKET> expressao() <RBRACKET>)?  // APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
 }
 
-/*void Identifier() : {}
-{
-  <IDENTIFIER>
-}*/
-
-Expression NumberOrBool() :
-{
-    Expression exp = null;
-}
+void NumberOrBool() :
+{}
 {
     //[<MINUS> | <NEGATION>] (<NUMBER> | <BOOL>)
-    (exp = Number() | exp = Bool() | exp = Word())
-    {
-        return exp;
-    }
+    Number() | Bool() | Word()
 }
 
-Expression Number():
+void Number():
+{}
 {
-    Expression exp = new Expression();
-    Token token = null;
-}
-{
-    (token = <NUMBER>)
-    {
-        exp.tipo = Tipo.INT;
-        exp.tokenList.add(token);
-        exp.unary = true;
-        return exp;
-    }
-}
-Expression Bool():
-{
-    Expression exp = new Expression();
-}
-{
-    (token = <BOOLEAN>)
-    {
-        exp.tipo = Tipo.BOOL;
-        exp.tokenList.add(token);
-        exp.unary = true;
-        return exp;
-    }
+    <NUMBER>
 }
 
-Expression Word():
+void Bool():
+{}
 {
-    Expression exp = new Expression();
+    <BOOLEAN>
 }
+
+void Word():
+{}
 {
-    (token = <WORD>)
-    {
-        exp.tipo = Tipo.WORD;
-        exp.tokenList.add(token);
-        exp.unary = true;
-        return exp;
-    }
-}
+    <WORD>
+}*/
