@@ -60,7 +60,7 @@ TOKEN:{ //PALAVRAS RESERVADAS
     |<VAR: "var">//{System.out.println("Reserved word: "+image);} //12
     |<WHILE: "while">//{System.out.println("Reserved word: "+image);} //13
     |<WRITE: "write">//{System.out.println("Reserved word: "+image);} //14
-    |<PNEUMOULTRAMICROSCOPICOSSILICOVULCANOCONIOTICO:"pneumoultramicroscopicossilicovulcanoconiotico">{System.out.println("Reserved word: "+image);}    //15
+    |<VOID:"void">//{System.out.println("Reserved word: "+image);}    //15
 }
 
 TOKEN:{ //SÍMBOLOS
@@ -136,8 +136,8 @@ void programa():
 {
     ((decVar())* (decSub())* <EOF>)
     {
-
         e = Compiler.pilhaDeEscopos.pop();
+        e.imprimeTabela();
     }
 }
 
@@ -155,7 +155,6 @@ void decVar():
 
             Compiler.pilhaDeEscopos.peek().inserirSimbolo(var.token, var);
         }
-        Compiler.pilhaDeEscopos.peek().imprimeTabela();
 
     }
 }
@@ -181,13 +180,23 @@ Tipo tipo():
     |(<BOOL>){return Tipo.BOOL;}
 }
 
+Tipo tipoRetSub():
+{
+}
+{
+    (<STRING>){return Tipo.STRING;}
+    |(<INT>){return Tipo.INT;}
+    |(<BOOL>){return Tipo.BOOL;}
+    |(<VOID>){return Tipo.VOID;}
+}
+
 ///////////////////////////////////////////////////////////// FATORAÇÃO A ESQUERDA
 Variavel specVar():
 {
     Variavel var = new Variavel();
 }
 {
-    (var.token = <IDENTIFIER>(specVarSimplesInit() | specVarArranjo())?){
+    (var.token = <IDENTIFIER>(specVarSimplesInit() | var.arranjo = specVarArranjo())?){
         return var;
     }
 }
@@ -199,9 +208,12 @@ void specVarSimplesInit():
     <ATTRIBUTION> expressao()
 }
 
-void specVarArranjo():
+Boolean specVarArranjo():
 {}{
-    <LBRACKET> expressao() <RBRACKET> (specVarArranjoInit())?
+    (<LBRACKET> expressao() <RBRACKET> (specVarArranjoInit())?)
+    {
+        return true;
+    }
 }
 
 void specVarArranjoInit():
@@ -213,67 +225,115 @@ void specVarArranjoInit():
 void valorArranjo():
 {}
 {
-    valorArranjoNumber()|valorArranjoBoolean()|valorArranjoString()
+    <LKEYS>(valorArranjoNumber()|valorArranjoBoolean()|valorArranjoString())<RKEYS>
 }
 
 void valorArranjoNumber():
 {}
 {
-    <LKEYS> <NUMBER> (<COMMA> valorArranjoNumber())? <RKEYS> <SEMICOLON>
+    <NUMBER> (<COMMA> valorArranjoNumber())?
 }
 
 void valorArranjoBoolean():
 {}
 {
-    <LKEYS> <BOOLEAN> (<COMMA> valorArranjoBoolean())? <RKEYS> <SEMICOLON>
+    <BOOLEAN> (<COMMA> valorArranjoBoolean())?
 }
 void valorArranjoString():
 {}
 {
-    <LKEYS> <WORD> (<COMMA> valorArranjoString())? <RKEYS> <SEMICOLON>
+    <WORD> (<COMMA> valorArranjoString())?
 }
 
 
 /////////////////////////////////////////////////////////////DECLARAÇÃO DE SUBPROGRAMAS
 void decSub():
-{}
 {
-    <DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros())? <RPARENTHESIS> (decFunc() | decProc())
+    SubPrograma sub = new SubPrograma();
+    Tipo tipo;
+    List<Variavel> listaParametros = new ArrayList<Variavel>();
+
+}
+{
+    (<DEF> sub.token = <IDENTIFIER> <LPARENTHESIS> (listaParametros = listaParametros())? <RPARENTHESIS> (tipo = decFunc() | tipo = decProc()))
+    {
+        sub.tipo = tipo;
+        sub.listaParametros = listaParametros;
+
+        Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);
+
+    }
     //decProc() | decFunc()
 }
 
-void decProc():
+Tipo decProc():
 {}
 {
-    bloco()
+    (bloco())
+    {
+        return Tipo.VOID;
+    }
     //<DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> bloco()
 }
 
-void decFunc():
-{}
+Tipo decFunc():
 {
-    <COLON> tipo() bloco()
+    Tipo aux;
+
+}
+{
+    (<COLON> aux = tipoRetSub() bloco())
+    {
+        return aux;
+    }
     //<DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> tipo() bloco()
 }
 
 /////////////////////////////////////////////////////////////LISTA DE PARÂMETROS
-void listaParametros():
-{}
+List<Variavel> listaParametros():
 {
-    specParams() (<SEMICOLON> specParams())?
+
+    List<Variavel> paramList = new ArrayList<Variavel>();
+    List<Variavel> auxList = null;
+
+}
+{
+    ((auxList = specParams()){ paramList.addAll(auxList); } (<SEMICOLON> (auxList = specParams()){paramList.addAll(auxList);})*)
+    {
+        return paramList;
+    }
 }
 
-void specParams():
-{}
+List<Variavel> specParams():
 {
-    param() (<COMMA> param())? <COLON> tipo()
+    List<Variavel> paramList = new ArrayList<Variavel>();
+    Variavel var = null;
+    Tipo td;
+
+}
+{
+    ((var = param()){paramList.add(var);} (<COMMA>  (var=param()){paramList.add(var);} )* <COLON> td=tipo())
+    {
+        for(Variavel param: paramList){
+            param.tipo = td;
+        }
+        return paramList;
+    }
 }
 
-void param():
-{}
+Variavel param():
+{
+
+    Variavel param = new Variavel();
+    Boolean isArranjo = false;
+
+}
 {
     //<IDENTIFIER> | <IDENTIFIER> <LBRACKET><RBRACKET>
-    <IDENTIFIER> (<LBRACKET><RBRACKET>)?
+    (param.token = <IDENTIFIER> ((<LBRACKET><RBRACKET>){ isArranjo = true;})?){
+        param.arranjo = isArranjo;
+        return param;
+    }
 }
 
 /////////////////////////////////////////////////////////////COMANDOS SIMPLES E BLOCOS DE COMANDOS
@@ -285,8 +345,8 @@ void comando():
 
 void cmdSimples():
 {}{
-    cmdAtrib() <SEMICOLON> | cmdIf() | cmdWhile() | cmdFor() | cmdStop() | cmdSkip() |
-    cmdReturn() | cmdChamadaProc() | cmdRead() | cmdWrite()
+    <IDENTIFIER>(cmdAtrib()<SEMICOLON> | cmdChamadaProc()) | cmdIf() | cmdWhile() | cmdFor() | cmdStop() | cmdSkip() |
+    cmdReturn() | /*cmdChamadaProc() |*/ cmdRead() | cmdWrite()
 }
 
 void bloco():
@@ -299,6 +359,7 @@ void bloco():
 {
     (<LKEYS> (decVar())* (decSub())* (comando())* <RKEYS>)
     {
+        Compiler.pilhaDeEscopos.peek().imprimeTabela();       //IMPRIMIR TABELA
         Compiler.pilhaDeEscopos.pop();
     }
 }
@@ -338,7 +399,7 @@ void cmdWhile():
 void cmdFor():
 {}
 {
-    <FOR> <LPARENTHESIS> atrib() <SEMICOLON> expressao() <SEMICOLON> atrib() <RPARENTHESIS> comando()
+    <FOR> <LPARENTHESIS> <IDENTIFIER> atrib() <SEMICOLON> expressao() <SEMICOLON> <IDENTIFIER> atrib() <RPARENTHESIS> comando()
 }
 
 void atribIni():
@@ -385,14 +446,14 @@ void cmdReturn():
 void cmdChamadaProc():
 {}
 {
-    <IDENTIFIER> <LPARENTHESIS> (expressao() (<COMMA> expressao())?)? <RPARENTHESIS> <SEMICOLON>
+    /*<IDENTIFIER>*/ <LPARENTHESIS> (expressao() (<COMMA> expressao())?)? <RPARENTHESIS> <SEMICOLON>
 }
 
 /////////////////////////////////////////////////////////////ENTRADA READ
 void cmdRead():
 {}
 {
-    <READ> variavel() <SEMICOLON>
+    <READ> <IDENTIFIER> variavel() <SEMICOLON>
 }
 
 /////////////////////////////////////////////////////////////SAIDA WRITE
@@ -405,7 +466,7 @@ void cmdWrite():
 void variavel():
 {}
 {
-    <IDENTIFIER> (variavelPartTwo())?
+    /*<IDENTIFIER>*/ (variavelPartTwo())?
 }
 
 void variavelPartTwo():
@@ -423,14 +484,14 @@ void operadorTern():
     expressao() <QUESTION> expressao() <COLON> expressao()
 }
 
-void expressao() : {}
+Expression expressao() : {}
 {
-    LogicalOR() //| operadorTern()
+    LogicalOR() | operadorTern()
 }
 
 void LogicalOR() : {}
 {
-    LogicalAND() ( <OR> LogicalOR())*
+    LogicalAND() ( <OR> LogicalAND())*
 }
 
 void LogicalAND() : {}
@@ -443,29 +504,81 @@ void RelativeExpression2() : {}
     RelativeExpression() (( <EQUALS> | <DIFERENT> ) RelativeExpression())*
 }
 
-void RelativeExpression() : {}
+void RelativeExpression() :
 {
-    AdditiveExpression() ( ( <MINUSEQUAL> | <SMALLER> | <BIGGEREQUAL> | <BIGGER> ) AdditiveExpression())*
+    Token token;
+    Tipo t1, t2;
+}
+{
+    (AdditiveExpression() ( ( token = <MINUSEQUAL> | token = <SMALLER> | token = <BIGGEREQUAL> | token = <BIGGER> ) AdditiveExpression())*)
+    {
+        if(t1 != Tipo.INT || t2 != Tipo.INT) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + token.beginLine);
+        return Tipo.BOOL;
+    }
 }
 
-void AdditiveExpression() : {}
+Tipo AdditiveExpression() :
 {
-  MultiplicativeExpression() ( ( <PLUS> | <MINUS> ) MultiplicativeExpression() )*
+    Token token;
+    Tipo t1, t2;
+}
+{
+    (MultiplicativeExpression() ( ( token = <PLUS> | token = <MINUS> ) MultiplicativeExpression() )*)
+    {
+        if(t1 != Tipo.INT || t2 != Tipo.INT) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + token.beginLine);
+        return Tipo.INT;
+    }
 }
 
-void MultiplicativeExpression() : {}
+Tipo MultiplicativeExpression() :
 {
-    UnaryExpression() ( ( <TIMES> | <DIVISION> | <PERCENT> ) UnaryExpression() )*
+    Token token;
+    Tipo t1, t2;
+    Expression exp;
+}
+{
+    (t1 = UnaryExpression() ( ( token = <TIMES> | token = <DIVISION> | token = <PERCENT> ) t2 = UnaryExpression() )*)
+    {
+        if(t1 != Tipo.INT || t2 != Tipo.INT) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + token.beginLine);
+        return Tipo.INT;
+    }
 }
 
-void UnaryExpression() : {}
+Expression UnaryExpression() :
 {
-  NumberOrBool() | SubCallOrIdentifier() | <LPARENTHESIS> expressao() <RPARENTHESIS>
+    Expression exp = null;
+}
+{
+    (<NEGATION> | <MINUS>)? (NumberOrBool() | SubCallOrIdentifier() | <LPARENTHESIS>  expressao() <RPARENTHESIS>)
+
+    (exp = NumberOrBool() | exp = SubCallOrIdentifier() | <LPARENTHESIS> exp = expressao() <RPARENTHESIS>)
+    {
+        return exp;
+    }
 }
 
-void SubCallOrIdentifier():{}
+Expression SubCallOrIdentifier():
 {
-    <IDENTIFIER> (<LBRACKET> expressao() <RBRACKET>)? | cmdChamadaProc() // APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
+    Token token;
+    Variavel = var;
+}
+{
+    ((token = <IDENTIFIER>)
+        {
+            var = Compiler.pilhaDeEscopos.peek().buscaSimbolo(token);
+            if(var==null){
+                throw new RuntimeException("ERRO: Identificavel " + token.image + " nao instanciado. \r\nLine: " + token.beginLine);
+            }
+        }
+    SubCallOrIdentifierPartTwo())// APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
+    {
+        if(var.tipo == Tipo.VOID) throw new RuntimeException("ERRO: Subprograma " + token.image + " nao possui valor de retorno (tipo VOID). \r\nLine: " + token.beginLine);
+        return var.tipo;
+    }
+}
+void SubCallOrIdentifierPartTwo():{}
+{
+    cmdChamadaProc() | (<LBRACKET> expressao() <RBRACKET>)?  // APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
 }
 
 /*void Identifier() : {}
@@ -473,17 +586,56 @@ void SubCallOrIdentifier():{}
   <IDENTIFIER>
 }*/
 
-void NumberOrBool() : {}
+Expression NumberOrBool() :
+{
+    Expression exp = null;
+}
 {
     //[<MINUS> | <NEGATION>] (<NUMBER> | <BOOL>)
-    Number() | Bool() | <WORD>
+    (exp = Number() | exp = Bool() | exp = Word())
+    {
+        return exp;
+    }
 }
 
-void Number():{}
+Expression Number():
 {
-    (<MINUS>)? <NUMBER>
+    Expression exp = new Expression();
+    Token token = null;
 }
-void Bool():{}
 {
-    (<NEGATION>)? <BOOLEAN>
+    (token = <NUMBER>)
+    {
+        exp.tipo = Tipo.INT;
+        exp.tokenList.add(token);
+        exp.unary = true;
+        return exp;
+    }
+}
+Expression Bool():
+{
+    Expression exp = new Expression();
+}
+{
+    (token = <BOOLEAN>)
+    {
+        exp.tipo = Tipo.BOOL;
+        exp.tokenList.add(token);
+        exp.unary = true;
+        return exp;
+    }
+}
+
+Expression Word():
+{
+    Expression exp = new Expression();
+}
+{
+    (token = <WORD>)
+    {
+        exp.tipo = Tipo.WORD;
+        exp.tokenList.add(token);
+        exp.unary = true;
+        return exp;
+    }
 }
