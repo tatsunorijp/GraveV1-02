@@ -144,8 +144,8 @@ void programa():
         sub = e.tabela.get("main");
         if(sub == null || sub instanceof Variavel) throw new RuntimeException("ERRO: Funcao main nao definida.");
 
+        //e.imprimeTabela();
         e = Compiler.pilhaDeEscopos.pop();
-        e.imprimeTabela();
     }
 }
 
@@ -287,14 +287,15 @@ void decSub():
 
 }
 {
-    ((<DEF> sub.token = <IDENTIFIER> <LPARENTHESIS> (listaParametros = listaParametros())? <RPARENTHESIS> (<COLON> tipo = tipoRetSub())?){ } e = bloco(listaParametros, false) )
+    ((<DEF> sub.token = <IDENTIFIER> <LPARENTHESIS> (listaParametros = listaParametros())? <RPARENTHESIS> (<COLON> tipo = tipoRetSub())?){  } e = bloco(listaParametros, false, (tipo == null), (tipo!=null)) )
     {
         sub.tipo = tipo;
         if(sub.tipo == null) sub.tipo = Tipo.VOID;
+        //System.out.println("-------------------------->TIPO: " + sub.tipo);
         sub.listaParametros = listaParametros;
         //sub.escopo = e;
 
-        //Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);
+        Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);
 
     }
     //decProc() | decFunc()
@@ -351,7 +352,7 @@ Variavel param():
 void comando(Boolean isLoopOrCond):
 {}
 {
-    cmdSimples() | bloco(new ArrayList<Variavel>(), isLoopOrCond)
+    cmdSimples() | bloco(new ArrayList<Variavel>(), isLoopOrCond, false, false)
 }
 
 void cmdSimples():
@@ -360,11 +361,13 @@ void cmdSimples():
     (cmdAtrib() |cmdChamadaProc() | cmdStop() | cmdSkip() | cmdReturn() | cmdRead() | cmdWrite()) <SEMICOLON> | cmdIf() | cmdWhile() | cmdFor()
 }
 
-Escopo bloco(List<Variavel> listaParametros, Boolean isLoopOrCond):
+Escopo bloco(List<Variavel> listaParametros, Boolean isLoopOrCond, Boolean isProcedure, Boolean isFunc):
 {
 
     Escopo e = new Escopo( Compiler.pilhaDeEscopos.peek() );
     e.isLoopOrCond = isLoopOrCond;
+    e.isProcedure = isProcedure;
+    e.isFunc = isFunc;
 
     // adicione a lista de parametros aa tabela do escopo
     for(Variavel v : listaParametros){
@@ -380,6 +383,7 @@ Escopo bloco(List<Variavel> listaParametros, Boolean isLoopOrCond):
 {
     (<LKEYS> (decVar())* (decSub())* (comando(false))* <RKEYS>)
     {
+        if(e.isFunc == true && e.hasReturn == false) throw new RuntimeException("ERRO: Comando RETURN nao encontrado em funcao. \r\nLine: ?");
         Compiler.pilhaDeEscopos.pop();
 
         return e;
@@ -502,11 +506,15 @@ void cmdReturn():
 {
     Escopo e = Compiler.pilhaDeEscopos.peek();
     Token t = null;
+    Expressao exp = null;
 }
 {
-    (t = <RETURN> (expressao())?)
+    (t = <RETURN> (exp = expressao())?)
     {
-        if(e.isGlobal == true) throw new RuntimeException("ERRO: Comando RETURN em escopo global. \r\nLine: " + t.beginLine);;
+        if(e.isGlobal == true) throw new RuntimeException("ERRO: Comando RETURN em escopo global. \r\nLine: " + t.beginLine);
+        if(e.isProcedure == true && exp != null) throw new RuntimeException("ERRO: Retornando valor diferente de VOID em procedimento. \r\nLine: " + t.beginLine);
+
+        Compiler.pilhaDeEscopos.peek().hasReturn = true;
     }
 }
 

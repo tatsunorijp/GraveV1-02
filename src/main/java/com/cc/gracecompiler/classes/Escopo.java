@@ -17,6 +17,8 @@ public class Escopo {
     public Boolean isGlobal = false;
     public Boolean isLoopOrCond = false;
     public Boolean isProcedure = false;
+    public Boolean isFunc = false;
+    public Boolean hasReturn = false;
 
     public Escopo(Escopo escopo){
         escopoPai = escopo;

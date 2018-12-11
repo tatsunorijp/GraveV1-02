@@ -13,12 +13,12 @@ public class SubPrograma extends Identificavel{
 
     @Override
     public Token getToken() {
-        return null;
+        return token;
     }
 
     @Override
     public Tipo getTipo() {
-        return null;
+        return tipo;
     }
 
 }
