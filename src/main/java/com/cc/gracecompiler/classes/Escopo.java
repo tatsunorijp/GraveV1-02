@@ -21,41 +21,53 @@ public class Escopo {
     // Insere na tabela de simbolos o identificador sendo declarado junto com o seu tipo
     public void inserirSimbolo(Token identificador, Identificavel identificado)
     {
+//        System.out.println("-----------------");
+//        System.out.println("ANTES");
+//        imprimeTabela();
+//        System.out.println("ANTES");
+//
+//        System.out.println(identificador.image);
+        tabela.put(identificador.image, identificado);
+
+//        System.out.println("DEPOIS");
+//        imprimeTabela();
+//        System.out.println("DEPOIS");
+//        System.out.println("-----------------");
+    }
+
+    // Busca por um simbolo na tabela do escopo atual e nos escopos pai
+    public Identificavel buscarSimbolo(Token checkTok){
+
         Escopo escopo = this;
 
         while(escopo != null){
-            if(escopo.buscarSimbolo(identificador)==null){
+
+            Identificavel identificavel = escopo.tabela.get(checkTok.image);
+            if(identificavel == null){
+
                 escopo = escopo.escopoPai;
-            }
-            else{
-                throw new RuntimeException("ERRO: Variavel " + identificador.image + " ja instanciada. \r\nLine: " + identificador.beginLine);
-            }
+
+            } else return identificavel;
+
         }
-
-        tabela.put(identificador.image, identificado);
-
-    }
-
-    public Identificavel buscarSimbolo(Token checkTok){
-
-        try
-        {
-            // Se o identificador existe na tabela, retorne-o
-            Identificavel identificavel = tabela.get(checkTok.image);
-            return identificavel;//" ";
-        }
-        catch(Exception e)
-        {
-            // Se o identificador nao existe na tabela, retorne null
-            return null;//"Error: The identifier " + checkTok.image + " hasn't been declared \r\nLine: " + checkTok.beginLine;
-        }
+        return null;
 
     }
 
     public void imprimeTabela(){
-        for(String var : tabela.keySet()){
-            System.out.println(var);
+
+        Escopo e = this;
+
+        while(e !=null){
+
+            for(String var : tabela.keySet()){
+                System.out.println(var);
+            }
+
+            e = e.escopoPai;
         }
+
+
     }
 
 }

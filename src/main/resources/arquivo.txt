@@ -4,7 +4,7 @@ var v[10]: int;
 // Observe como um parâmetro de arranjo é declarado
 
 def bubblesort(v[]: int; n: int) {
-    var i, j: int;
+    var i=0, j: int;
     var trocou = true: bool;
 
     while (i < n-1 && trocou) {

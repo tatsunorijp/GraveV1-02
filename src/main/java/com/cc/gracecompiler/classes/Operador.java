@@ -8,4 +8,11 @@ public enum Operador {
     Operador(int kind) {
         this.kind = kind;
     }
+
+    public static Operador getOp(int kind) {
+        for (Operador o : Operador.values()) {
+            if (o.kind == kind) return o;
+        }
+        throw new IllegalArgumentException("Operador nao encontrado");
+    }
 }

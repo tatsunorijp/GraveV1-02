@@ -9,6 +9,7 @@ public class SubPrograma extends Identificavel{
     public Token token;
     public Tipo tipo;
     public List<Variavel> listaParametros = new ArrayList<>();
+    public Escopo escopo = null;
 
     @Override
     public Token getToken() {
@@ -19,4 +20,5 @@ public class SubPrograma extends Identificavel{
     public Tipo getTipo() {
         return null;
     }
+
 }
