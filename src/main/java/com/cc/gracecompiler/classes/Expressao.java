@@ -30,7 +30,7 @@ public class Expressao {
         return expList;
     }
 
-    public Boolean analiseSemantica(){
+    public Boolean analiseSemantica(Token linha){
 
         Tipo t = expList.get(0).getTipo();
 
@@ -38,7 +38,7 @@ public class Expressao {
         //System.out.println("\n\n@\n@");
         for(Expressao e : expList){
             //System.out.println(e.tipo.kind);
-            if(e.getTipo() != t) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: ?");
+            if(e.getTipo() != t) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + linha.beginLine);
         }
 
         // seta o tipo da expressao
@@ -54,22 +54,22 @@ public class Expressao {
 
             if(op == Operador.AND || op == Operador.OR || op == Operador.NEGATION){
                 this.tipo = Tipo.BOOL;
-                if(t.kind != Tipo.BOOL.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: ?");
+                if(t.kind != Tipo.BOOL.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + linha.beginLine);
             }
 
             if(op == Operador.BIGGER || op == Operador.BIGGEREQUAL || op == Operador.SMALLER || op == Operador.SMALLEREQUAL){
                 this.tipo = Tipo.BOOL;
-                if(t.kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: ?");
+                if(t.kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + linha.beginLine);
             }
 
             if(op == Operador.EQUALS || op == Operador.DIFFERENT){
                 this.tipo = Tipo.BOOL;
-                if(t.kind != Tipo.BOOL.kind || t.kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: ?");
+                if(t.kind != Tipo.BOOL.kind || t.kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + linha.beginLine);
             }
 
             if(op == Operador.PLUS || op == Operador.MINUS || op == Operador.TIMES || op == Operador.DIVISION || op == Operador.PERCENT){
                 this.tipo = Tipo.INT;
-                if(t.kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: ?");
+                if(t.kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + linha.beginLine);
             }
 
         }
@@ -77,39 +77,5 @@ public class Expressao {
 
         return true;
     }
-
-    /*public Tipo tipo;
-    public List<Token> tokenList = new ArrayList<Token>();
-    public Operador op = null;
-    public Boolean unary = false;
-
-    public Tipo getTipo() {
-        return tipo;
-    }
-
-    public void analiseSemantica(){
-
-        if(op == Operador.AND || op == Operador.OR || op == Operador.NEGATION){
-            for(Token t: tokenList){
-                if(t.kind != Tipo.BOOL.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + t.beginLine);
-            }
-        }
-
-        if(op == Operador.BIGGER || op == Operador.BIGGEREQUAL || op == Operador.SMALLER || op == Operador.SMALLEREQUAL){
-            if(tokenList.get(0).kind != Tipo.INT.kind || tokenList.get(1).kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + tokenList.get(0).beginLine);
-        }
-
-        if(op == Operador.EQUALS || op == Operador.DIFFERENT){
-            if(tokenList.get(0).kind != tokenList.get(1).kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + tokenList.get(0).beginLine);
-        }
-
-        if(op == Operador.PLUS || op == Operador.MINUS || op == Operador.TIMES || op == Operador.DIVISION || op == Operador.PERCENT){
-            for(Token t: tokenList){
-                if(t.kind != Tipo.INT.kind) throw new RuntimeException("ERRO: Tipos incompativeis na expressao. \r\nLine: " + t.beginLine);
-            }
-        }
-
-
-    }*/
 
 }

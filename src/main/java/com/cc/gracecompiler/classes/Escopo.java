@@ -14,6 +14,10 @@ public class Escopo {
     // Escopo pai
     public Escopo escopoPai = null;
 
+    public Boolean isGlobal = false;
+    public Boolean isLoopOrCond = false;
+    public Boolean isProcedure = false;
+
     public Escopo(Escopo escopo){
         escopoPai = escopo;
     }
@@ -21,18 +25,9 @@ public class Escopo {
     // Insere na tabela de simbolos o identificador sendo declarado junto com o seu tipo
     public void inserirSimbolo(Token identificador, Identificavel identificado)
     {
-//        System.out.println("-----------------");
-//        System.out.println("ANTES");
-//        imprimeTabela();
-//        System.out.println("ANTES");
-//
-//        System.out.println(identificador.image);
-        tabela.put(identificador.image, identificado);
 
-//        System.out.println("DEPOIS");
-//        imprimeTabela();
-//        System.out.println("DEPOIS");
-//        System.out.println("-----------------");
+        if(this.tabela.get(identificador.image) != null) throw new RuntimeException("ERRO: Variavel" + identificador.image + " ja declarada neste escopo. \r\nLine: " + identificador.beginLine);
+        tabela.put(identificador.image, identificado);
     }
 
     // Busca por um simbolo na tabela do escopo atual e nos escopos pai
@@ -61,7 +56,7 @@ public class Escopo {
         while(e !=null){
 
             for(String var : tabela.keySet()){
-                System.out.println(var);
+                System.out.println("NOME: " + var + "\tTIPO: " + tabela.get(var).getTipo());
             }
 
             e = e.escopoPai;

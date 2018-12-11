@@ -6,6 +6,7 @@ public class Variavel extends Identificavel {
     public Tipo tipo;
     public Token token;
     public Boolean arranjo = false;
+    public Boolean inicializada = false;
 
     @Override
     public Token getToken() {

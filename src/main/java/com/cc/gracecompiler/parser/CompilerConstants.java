@@ -39,7 +39,7 @@ public interface CompilerConstants {
   /** RegularExpression Id. */
   int WRITE = 14;
   /** RegularExpression Id. */
-  int PNEUMOULTRAMICROSCOPICOSSILICOVULCANOCONIOTICO = 15;
+  int VOID = 15;
   /** RegularExpression Id. */
   int LPARENTHESIS = 16;
   /** RegularExpression Id. */
@@ -71,7 +71,7 @@ public interface CompilerConstants {
   /** RegularExpression Id. */
   int EQUALS = 30;
   /** RegularExpression Id. */
-  int DIFERENT = 31;
+  int DIFFERENT = 31;
   /** RegularExpression Id. */
   int BIGGEREQUAL = 32;
   /** RegularExpression Id. */
@@ -133,7 +133,7 @@ public interface CompilerConstants {
     "\"var\"",
     "\"while\"",
     "\"write\"",
-    "\"pneumoultramicroscopicossilicovulcanoconiotico\"",
+    "\"void\"",
     "\"(\"",
     "\")\"",
     "\"[\"",

@@ -132,20 +132,27 @@ SKIP:{ // TOKENS IGNORADOS
 void programa():
 {
     Escopo e = new Escopo(null);
+    e.isGlobal = true;
     Compiler.pilhaDeEscopos.push(e);
+
+    Identificavel sub = null;
 }
 {
     ((decVar())* (decSub())* <EOF>)
     {
+
+        sub = e.tabela.get("main");
+        if(sub == null || sub instanceof Variavel) throw new RuntimeException("ERRO: Funcao main nao definida.");
+
         e = Compiler.pilhaDeEscopos.pop();
-        //e.imprimeTabela();
+        e.imprimeTabela();
     }
 }
 
 /////////////////////////////////////////////////////DECLARAÇÃO DE VARIÁVEL
 void decVar():
 {
-    Tipo td;
+    Tipo td = null;
     List<Variavel> vars = new ArrayList<Variavel>();
 }
 {
@@ -153,7 +160,11 @@ void decVar():
     {
 
         for(Variavel var : vars){
-            var.tipo = td;
+
+            if(var.tipo != null){
+                if(var.tipo != td) throw new RuntimeException("ERRO: Tipos incompativeis na atribuicao. \r\nLine: " + var.token.beginLine);
+
+            } else var.tipo = td;
 
             Compiler.pilhaDeEscopos.peek().inserirSimbolo(var.token, var);
         }
@@ -197,109 +208,97 @@ Tipo tipoRetSub():
 ///////////////////////////////////////////////////////////// FATORAÇÃO A ESQUERDA
 Variavel specVar():
 {
-    Variavel var = new Variavel();
+    Variavel var = null;
+    Tipo td = null;
+    Token token = null;
+    Boolean isarranjo = false;
 }
 {
-    (var.token = <IDENTIFIER> (var.arranjo = specVarArranjo() | specVarSimplesInit())?){
+    (token = <IDENTIFIER> ( ( var = specVarArranjo()){isarranjo = true;} | var = specVarSimplesInit())?){
+        //System.out.println("TIPO AI" + td);
 
+        if(var == null){
+            var = new Variavel();
+            var.tipo = null;
+            var.arranjo = isarranjo;
+            var.inicializada = isarranjo;
+        }
+
+        var.token = token;
         return var;
     }
 }
 
 
-Tipo specVarSimplesInit():
+Variavel specVarSimplesInit():
 {
     Expressao exp = null;
+    Variavel v = new Variavel();
 }
 {
     (<ATTRIBUTION> exp = expressao())
     {
-        return exp.tipo;
+        v.tipo = exp.tipo;
+        v.inicializada = true;
+        return v;
     }
 }
 
-Boolean specVarArranjo():
-{}{
-    (<LBRACKET> expressao() <RBRACKET> (specVarArranjoInit())? )
+Variavel specVarArranjo():
+{
+    Variavel v = null;
+    Tipo td = null;
+}
+{
+    (variavelArranjo() ( v = specVarArranjoInit())? )
     {
-        return true;
+
+        return v;
     }
 }
 
-void specVarArranjoInit():
-{}
+Variavel specVarArranjoInit():
 {
-    <ATTRIBUTION> valorArranjo()
+    Expressao exp = null;
+    List<Expressao> expList = new ArrayList<Expressao>();
+    Token t = null;
+    Variavel v = new Variavel();
 }
+{
+    (t = <ATTRIBUTION> <LKEYS> ((exp = expressao()){expList.add(exp);} (<COMMA> (exp = expressao()){expList.add(exp);})*) <RKEYS>)
+    {
+        for(Expressao e : expList){
+            if(e.tipo != exp.tipo) throw new RuntimeException("ERRO: Tipos incompativeis na atribuicao. \r\nLine: " + t.beginLine);
+        }
 
-void valorArranjo():
-{}
-{
-    <LKEYS>(valorArranjoNumber()|valorArranjoBoolean()|valorArranjoString())<RKEYS>
+        v.tipo = exp.tipo;
+        v.inicializada = true;
+        return v;
+    }
 }
-
-void valorArranjoNumber():
-{}
-{
-    <NUMBER> (<COMMA> valorArranjoNumber())?
-}
-
-void valorArranjoBoolean():
-{}
-{
-    <BOOLEAN> (<COMMA> valorArranjoBoolean())?
-}
-void valorArranjoString():
-{}
-{
-    <WORD> (<COMMA> valorArranjoString())?
-}
-
 
 /////////////////////////////////////////////////////////////DECLARAÇÃO DE SUBPROGRAMAS
 void decSub():
 {
     Escopo e = null;
     SubPrograma sub = new SubPrograma();
-    Tipo tipo = Tipo.VOID;
+    Tipo tipo = null;
     List<Variavel> listaParametros = new ArrayList<Variavel>();
 
 }
 {
-    ((<DEF> sub.token = <IDENTIFIER> <LPARENTHESIS> (listaParametros = listaParametros())? <RPARENTHESIS> (<COLON> tipo = tipoRetSub())?){ Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);} e = bloco(listaParametros) )
+    ((<DEF> sub.token = <IDENTIFIER> <LPARENTHESIS> (listaParametros = listaParametros())? <RPARENTHESIS> (<COLON> tipo = tipoRetSub())?){ } e = bloco(listaParametros, false) )
     {
         sub.tipo = tipo;
+        if(sub.tipo == null) sub.tipo = Tipo.VOID;
         sub.listaParametros = listaParametros;
         //sub.escopo = e;
 
-        Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);
+        //Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);
 
     }
     //decProc() | decFunc()
 }
-
-//Tipo decProc():
-//{}
-//{
-//    (bloco())
-//    {
-//        return Tipo.VOID;
-//    }
-//    //<DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> bloco()
-//}
-//
-//Tipo decFunc():
-//{
-//    Tipo aux;
-//
-//}
-//{
-//    (<COLON> aux = tipoRetSub() bloco())
-//    {
-//        return aux;
-//    }
-//    //<DEF> <IDENTIFIER> <LPARENTHESIS> (listaParametros()) <RPARENTHESIS> tipo() bloco()
-//}
 
 /////////////////////////////////////////////////////////////LISTA DE PARÂMETROS
 List<Variavel> listaParametros():
@@ -349,25 +348,27 @@ Variavel param():
 }
 
 /////////////////////////////////////////////////////////////COMANDOS SIMPLES E BLOCOS DE COMANDOS
-void comando():
+void comando(Boolean isLoopOrCond):
 {}
 {
-    cmdSimples() | bloco(new ArrayList<Variavel>())
+    cmdSimples() | bloco(new ArrayList<Variavel>(), isLoopOrCond)
 }
 
 void cmdSimples():
-{}{
-    <IDENTIFIER> ( cmdAtrib() | cmdChamadaProc() ) | cmdIf() | cmdWhile() | cmdFor() | cmdStop() | cmdSkip() |
-    cmdReturn() | /*cmdChamadaProc() |*/ cmdRead() | cmdWrite()
+{}
+{
+    (cmdAtrib() |cmdChamadaProc() | cmdStop() | cmdSkip() | cmdReturn() | cmdRead() | cmdWrite()) <SEMICOLON> | cmdIf() | cmdWhile() | cmdFor()
 }
 
-Escopo bloco(List<Variavel> listaParametros):
+Escopo bloco(List<Variavel> listaParametros, Boolean isLoopOrCond):
 {
 
     Escopo e = new Escopo( Compiler.pilhaDeEscopos.peek() );
+    e.isLoopOrCond = isLoopOrCond;
 
     // adicione a lista de parametros aa tabela do escopo
     for(Variavel v : listaParametros){
+        v.inicializada = true;
         e.inserirSimbolo(v.token, v);
     }
 
@@ -377,7 +378,7 @@ Escopo bloco(List<Variavel> listaParametros):
 
 }
 {
-    (<LKEYS> (decVar())* (decSub())* (comando())* <RKEYS>)
+    (<LKEYS> (decVar())* (decSub())* (comando(false))* <RKEYS>)
     {
         Compiler.pilhaDeEscopos.pop();
 
@@ -387,101 +388,182 @@ Escopo bloco(List<Variavel> listaParametros):
 
 /////////////////////////////////////////////////////////////ATRIBUIÇÃO
 void cmdAtrib():
-{}
 {
-    atrib() <SEMICOLON>
-}
-
-void atrib():
-{
-
+    Expressao exp = null;
+    Token t = null;
 }
 {
-    variavel() (<ATTRIBUTION> | <PLUSEQUAL> | <MINUSEQUAL> | <ASTERISKEQUAL> | <DIVISIONEQUAL> | <PERCENTEQUAL>) expressao()
+    (t = <IDENTIFIER> (variavelArranjo())? (<ATTRIBUTION> | <PLUSEQUAL> | <MINUSEQUAL> | <ASTERISKEQUAL> | <DIVISIONEQUAL> | <PERCENTEQUAL>) exp = expressao())
+    {
+        if(exp.tipo == Tipo.WORD && t == null) throw new RuntimeException("ERRO: Expressao incompativel com a atribuicao: " + t.beginLine);
 
+        CmdAtribuicao a = new CmdAtribuicao(Compiler.pilhaDeEscopos.peek().buscarSimbolo(t), exp);
+        a.analiseSemantica(t);
+
+    }
+}
+
+//Expressao atrib():
+//{
+//    Expressao exp = null;
+//    Token t = null;
+//}
+//{
+//    ((variavelArranjo())? (t = <ATTRIBUTION> | <PLUSEQUAL> | <MINUSEQUAL> | <ASTERISKEQUAL> | <DIVISIONEQUAL> | <PERCENTEQUAL>) exp = expressao())
+//    {
+//        if(exp.tipo == Tipo.WORD && t == null) throw new RuntimeException("ERRO: Expressao incompativel com a atribuicao: " + t.beginLine);
+//        return exp;
+//    }
+//
+//}
+
+void variavelArranjo():
+{
+    Expressao exp = null;
+    Token t = null;
+}
+{
+    (t = <LBRACKET> exp = expressao() <RBRACKET>)
+    {
+        if(exp.tipo != Tipo.INT) throw new RuntimeException("ERRO: Argumento incorreto para arranjo. \r\nLine: " + t.beginLine);
+    }
 }
 
 /////////////////////////////////////////////////////////////CONDICIONAL IF
 void cmdIf():
-{}
 {
-    <IF> <LPARENTHESIS> expressao() <RPARENTHESIS> comando() (<ELSE> comando())?
+    Expressao exp = null;
+    Token t = null;
+}
+{
+    (<IF> t = <LPARENTHESIS> exp = expressao() <RPARENTHESIS> comando(true) (<ELSE> comando(true))?)
+    {
+        CmdIf iff = new CmdIf(exp);
+        iff.analiseSemantica(t);
+    }
 }
 
 /////////////////////////////////////////////////////////////COMANDO WHILE
 void cmdWhile():
-{}
 {
-    <WHILE> <LPARENTHESIS> expressao() <RPARENTHESIS> comando()
+    Expressao exp = null;
+    Token t = null;
+}
+{
+    (<WHILE> t = <LPARENTHESIS> exp = expressao() <RPARENTHESIS> comando(true))
+    {
+        CmdWhile whilee = new CmdWhile(exp);
+        whilee.analiseSemantica(t);
+    }
 }
 
 /////////////////////////////////////////////////////////////LAÇO FOR
 void cmdFor():
-{}
 {
-    <FOR> <LPARENTHESIS> <IDENTIFIER> atrib() <SEMICOLON> expressao() <SEMICOLON> <IDENTIFIER> atrib() <RPARENTHESIS> comando()
+    Expressao exp = null;
+    Token t = null;
+}
+{
+    (<FOR> t = <LPARENTHESIS> cmdAtrib() <SEMICOLON> exp = expressao() <SEMICOLON> cmdAtrib() <RPARENTHESIS> comando(true))
+    {
+        CmdFor forr = new CmdFor(exp);
+        forr.analiseSemantica(t);
+    }
 }
 
 /////////////////////////////////////////////////////////////INTERRUPÇÃO DE LAÇO
 void cmdStop():
-{}
 {
-    <STOP><SEMICOLON>
+    Escopo e = Compiler.pilhaDeEscopos.peek();
+    Token t = null;
+}
+{
+    (t = <STOP>)
+    {
+        if(e.isLoopOrCond == false) throw new RuntimeException("ERRO: Comando STOP fora de laço ou condicao. \r\nLine: " + t.beginLine);
+    }
 }
 
 /////////////////////////////////////////////////////////////SALTO DE ITERAÇÃO DE LAÇO
 void cmdSkip():
-{}
 {
-    <CONTINUE><SEMICOLON>
+    Escopo e = Compiler.pilhaDeEscopos.peek();
+    Token t = null;
+}
+{
+    (t = <CONTINUE>)
+    {
+        if(e.isLoopOrCond == false) throw new RuntimeException("ERRO: Comando SKIP fora de laço ou condicao. \r\nLine: " + t.beginLine);
+    }
 }
 
 /////////////////////////////////////////////////////////////RETORNO DE SUBPROGRAMA
 void cmdReturn():
-{}
 {
-    <RETURN> (expressao())? <SEMICOLON>
+    Escopo e = Compiler.pilhaDeEscopos.peek();
+    Token t = null;
+}
+{
+    (t = <RETURN> (expressao())?)
+    {
+        if(e.isGlobal == true) throw new RuntimeException("ERRO: Comando RETURN em escopo global. \r\nLine: " + t.beginLine);;
+    }
 }
 
 /////////////////////////////////////////////////////////////CHAMADA DE PROCEDIMENTO
-void cmdChamadaProc():
-{}
+Token cmdChamadaProc():
 {
-    /*<IDENTIFIER>*/ <LPARENTHESIS> (expressao() (<COMMA> expressao())?)? <RPARENTHESIS> <SEMICOLON>
+    Expressao exp = null;
+    List<Expressao> expList = new ArrayList<Expressao>();
+    Token t = null;
+}
+{
+    ( t = <IDENTIFIER> <LPARENTHESIS> (  (exp = expressao()){expList.add(exp);} (<COMMA> (exp = expressao()){expList.add(exp);} )* )? <RPARENTHESIS>)
+    {
+        CmdChamadaProc cp = new CmdChamadaProc(Compiler.pilhaDeEscopos.peek().buscarSimbolo(t), expList);
+        cp.analiseSemantica(t);
+
+        return t;
+    }
 }
 
 /////////////////////////////////////////////////////////////ENTRADA READ
 void cmdRead():
-{}
 {
-    <READ> <IDENTIFIER> variavel() <SEMICOLON>
+    Identificavel id = null;
+    Token token = null;
+}
+{
+    (<READ> token = <IDENTIFIER> (variavelArranjo())?)
+    {
+        id = Compiler.pilhaDeEscopos.peek().buscarSimbolo(token);
+
+        if(id==null) throw new RuntimeException("ERRO: Identificavel " + token.image + " nao instanciado. \r\nLine: " + token.beginLine);
+        if(id instanceof SubPrograma) throw new RuntimeException("ERRO: Identificavel " + token.image + " nao e variavel. \r\nLine: " + token.beginLine);
+
+        ((Variavel) id).inicializada = true;
+
+    }
 }
 
 /////////////////////////////////////////////////////////////SAIDA WRITE
 void cmdWrite():
 {}
 {
-    <WRITE> expressao() (<COMMA> expressao())* <SEMICOLON>
+    <WRITE> expressao() (<COMMA> expressao())*
 }
-
-void variavel():
-{}
-{
-    /*<IDENTIFIER>*/ (variavelPartTwo())?
-}
-
-void variavelPartTwo():
-{}
-{
-    <LBRACKET> expressao() <RBRACKET>
-}
-
 
 //////////////////////////////////////////////////////////// EXPRESSÁO
-void operadorTern():
-{}
+Expressao operadorTern():
 {
-    expressao() <QUESTION> expressao() <COLON> expressao()
+    Expressao exp = null;
+}
+{
+    (exp = expressao() [<QUESTION> exp = expressao() <COLON> exp = expressao()] )
+    {
+
+        return exp;
+    }
 }
 
 Expressao expressao() :
@@ -507,7 +589,7 @@ Expressao LogicalOR() :
     {
         Expressao retExp = new Expressao(opList, expList);
 
-        retExp.analiseSemantica();
+        retExp.analiseSemantica(op);
         return retExp;
     }
 }
@@ -524,7 +606,7 @@ Expressao LogicalAND() :
     {
         Expressao retExp = new Expressao(opList, expList);
 
-        retExp.analiseSemantica();
+        retExp.analiseSemantica(op);
         return retExp;
     }
 }
@@ -541,7 +623,7 @@ Expressao EqualityExpression() :
     {
         Expressao retExp = new Expressao(opList, expList);
 
-        retExp.analiseSemantica();
+        retExp.analiseSemantica(op);
         return retExp;
     }
 }
@@ -558,7 +640,7 @@ Expressao RelativeExpression() :
     {
         Expressao retExp = new Expressao(opList, expList);
 
-        retExp.analiseSemantica();
+        retExp.analiseSemantica(op);
         return retExp;
     }
 }
@@ -575,7 +657,7 @@ Expressao AdditiveExpression() :
     {
         Expressao retExp = new Expressao(opList, expList);
 
-        retExp.analiseSemantica();
+        retExp.analiseSemantica(op);
         return retExp;
     }
 }
@@ -592,7 +674,7 @@ Expressao MultiplicativeExpression() :
     {
         Expressao retExp = new Expressao(opList, expList);
 
-        retExp.analiseSemantica();
+        retExp.analiseSemantica(op);
         return retExp;
     }
 }
@@ -611,29 +693,24 @@ Expressao UnaryExpression() :
         if(tokenOp != null) retExp.opList.add(Operador.getOp(tokenOp.kind));
         retExp.expList.add(exp);
 
-        retExp.analiseSemantica();
+        retExp.analiseSemantica(tokenOp);
         return retExp;
     }
 }
 
 Expressao identificavel():
 {
-    Token token;
+    Token token = null;
     Identificavel var = null;
     Expressao exp = null;
 }
 {
-    (token = <IDENTIFIER>
-    ((<LBRACKET>
-    (exp = expressao())
-    {
-        if(exp.tipo != Tipo.INT) throw new RuntimeException("ERRO: Tipo de argumento incorreto. \r\nLine: " + token.beginLine);
-    }
-    <RBRACKET>) | cmdChamadaProc() )?)// APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
+    (token = <IDENTIFIER> (variavelArranjo())? | token = cmdChamadaProc() )// APENAS CHAMADA DE FUNÇAO E CONSIDERADA EXPRESSAO
     {
         var = Compiler.pilhaDeEscopos.peek().buscarSimbolo(token);
 
-        if(var==null)throw new RuntimeException("ERRO: Identificavel " + token.image + " nao instanciado. \r\nLine: " + token.beginLine);
+        if(var==null) throw new RuntimeException("ERRO: Identificavel " + token.image + " nao instanciado. \r\nLine: " + token.beginLine);
+        if(var instanceof Variavel && ((Variavel)var).inicializada == false) throw new RuntimeException("ERRO: Identificavel " + token.image + " nao inicializado. \r\nLine: " + token.beginLine);
         if(var.getTipo() == Tipo.VOID) throw new RuntimeException("ERRO: Subprograma " + token.image + " possui valor de retorno VOID. \r\nLine: " + token.beginLine);
 
         Expressao retExp = new Expressao();
@@ -656,16 +733,3 @@ Expressao literal() :
         return exp;
     }
 }
-
-//Token IDENTIFIER():
-//{
-//    Token t;
-//    Identificavel ident = null;
-//}
-//{
-//    ( t = <IDENTIFIER>)
-//    {
-//        ident = Compiler.pilhaDeEscopos.peek().buscarSimbolo(t);
-//        if(ident==null)throw new RuntimeException("ERRO: Identificavel " + t.image + " nao instanciado. \r\nLine: " + t.beginLine);
-//    }
-//}

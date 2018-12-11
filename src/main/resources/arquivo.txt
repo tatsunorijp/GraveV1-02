@@ -21,9 +21,12 @@ def bubblesort(v[]: int; n: int) {
     }
 }
 
-def main(): int {
-    var i: int;
+def test(){
+    return;
+}
 
+def main(): int {
+    var i=test: int;
     write "Digite os valores do arranjo:\n";
 
     for (i=0; i<10; i+=1) {
