@@ -132,7 +132,7 @@ SKIP:{ // TOKENS IGNORADOS
 void programa():
 {
     Escopo e = new Escopo(null);
-    e.isGlobal = true;
+    //e.isGlobal = true;
     Compiler.pilhaDeEscopos.push(e);
 
     Identificavel sub = null;
@@ -287,8 +287,8 @@ void decSub():
 
 }
 {
-    ((<DEF> sub.token = <IDENTIFIER> <LPARENTHESIS> (listaParametros = listaParametros())? <RPARENTHESIS> (<COLON> tipo = tipoRetSub())?){  } e = bloco(listaParametros, false, (tipo == null), (tipo!=null)) )
-    {
+    ((<DEF> sub.token = <IDENTIFIER> <LPARENTHESIS> (listaParametros = listaParametros())? <RPARENTHESIS>
+    (<COLON> tipo = tipoRetSub())?){
         sub.tipo = tipo;
         if(sub.tipo == null) sub.tipo = Tipo.VOID;
         //System.out.println("-------------------------->TIPO: " + sub.tipo);
@@ -296,6 +296,17 @@ void decSub():
         //sub.escopo = e;
 
         Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);
+    }
+    e = bloco(listaParametros, false, sub) )
+    {
+//        sub.tipo = tipo;
+//        if(sub.tipo == null) sub.tipo = Tipo.VOID;
+//        //System.out.println("-------------------------->TIPO: " + sub.tipo);
+//        sub.listaParametros = listaParametros;
+//        //sub.escopo = e;
+//
+//        Compiler.pilhaDeEscopos.peek().inserirSimbolo(sub.token, sub);
+
 
     }
     //decProc() | decFunc()
@@ -349,10 +360,10 @@ Variavel param():
 }
 
 /////////////////////////////////////////////////////////////COMANDOS SIMPLES E BLOCOS DE COMANDOS
-void comando(Boolean isLoopOrCond):
+void comando(Boolean isLoopOrCond, SubPrograma sub):
 {}
 {
-    cmdSimples() | bloco(new ArrayList<Variavel>(), isLoopOrCond, false, false)
+    cmdSimples() | bloco(new ArrayList<Variavel>(), isLoopOrCond, sub)
 }
 
 void cmdSimples():
@@ -361,13 +372,15 @@ void cmdSimples():
     (cmdAtrib() |cmdChamadaProc() | cmdStop() | cmdSkip() | cmdReturn() | cmdRead() | cmdWrite()) <SEMICOLON> | cmdIf() | cmdWhile() | cmdFor()
 }
 
-Escopo bloco(List<Variavel> listaParametros, Boolean isLoopOrCond, Boolean isProcedure, Boolean isFunc):
+Escopo bloco(List<Variavel> listaParametros, Boolean isLoopOrCond, SubPrograma subPrograma):
 {
 
     Escopo e = new Escopo( Compiler.pilhaDeEscopos.peek() );
     e.isLoopOrCond = isLoopOrCond;
-    e.isProcedure = isProcedure;
-    e.isFunc = isFunc;
+    //e.isProcedure = isProcedure;
+    //e.isFunc = isFunc;
+    e.subPrograma = subPrograma;
+
 
     // adicione a lista de parametros aa tabela do escopo
     for(Variavel v : listaParametros){
@@ -381,9 +394,9 @@ Escopo bloco(List<Variavel> listaParametros, Boolean isLoopOrCond, Boolean isPro
 
 }
 {
-    (<LKEYS> (decVar())* (decSub())* (comando(false))* <RKEYS>)
+    (<LKEYS> (decVar())* (decSub())* (comando(false, subPrograma))* <RKEYS>)
     {
-        if(e.isFunc == true && e.hasReturn == false) throw new RuntimeException("ERRO: Comando RETURN nao encontrado em funcao. \r\nLine: ?");
+        if(subPrograma.tipo != Tipo.VOID && isLoopOrCond == false && e.hasReturn == false) throw new RuntimeException("ERRO: Comando RETURN nao encontrado na funcao " + subPrograma.token.image);
         Compiler.pilhaDeEscopos.pop();
 
         return e;
@@ -440,7 +453,7 @@ void cmdIf():
     Token t = null;
 }
 {
-    (<IF> t = <LPARENTHESIS> exp = expressao() <RPARENTHESIS> comando(true) (<ELSE> comando(true))?)
+    (<IF> t = <LPARENTHESIS> exp = expressao() <RPARENTHESIS> comando(true, Compiler.pilhaDeEscopos.peek().subPrograma) (<ELSE> comando(true, Compiler.pilhaDeEscopos.peek().subPrograma))?)
     {
         CmdIf iff = new CmdIf(exp);
         iff.analiseSemantica(t);
@@ -454,7 +467,7 @@ void cmdWhile():
     Token t = null;
 }
 {
-    (<WHILE> t = <LPARENTHESIS> exp = expressao() <RPARENTHESIS> comando(true))
+    (<WHILE> t = <LPARENTHESIS> exp = expressao() <RPARENTHESIS> comando(true, Compiler.pilhaDeEscopos.peek().subPrograma))
     {
         CmdWhile whilee = new CmdWhile(exp);
         whilee.analiseSemantica(t);
@@ -468,7 +481,7 @@ void cmdFor():
     Token t = null;
 }
 {
-    (<FOR> t = <LPARENTHESIS> cmdAtrib() <SEMICOLON> exp = expressao() <SEMICOLON> cmdAtrib() <RPARENTHESIS> comando(true))
+    (<FOR> t = <LPARENTHESIS> cmdAtrib() <SEMICOLON> exp = expressao() <SEMICOLON> cmdAtrib() <RPARENTHESIS> comando(true, Compiler.pilhaDeEscopos.peek().subPrograma))
     {
         CmdFor forr = new CmdFor(exp);
         forr.analiseSemantica(t);
@@ -511,10 +524,13 @@ void cmdReturn():
 {
     (t = <RETURN> (exp = expressao())?)
     {
-        if(e.isGlobal == true) throw new RuntimeException("ERRO: Comando RETURN em escopo global. \r\nLine: " + t.beginLine);
-        if(e.isProcedure == true && exp != null) throw new RuntimeException("ERRO: Retornando valor diferente de VOID em procedimento. \r\nLine: " + t.beginLine);
+        if(e.subPrograma == null) throw new RuntimeException("ERRO: Comando RETURN em escopo global. \r\nLine: " + t.beginLine);
+        if(e.subPrograma.tipo == Tipo.VOID && exp !=null) throw new RuntimeException("ERRO: Retornando valor diferente de VOID em procedimento. \r\nLine: " + t.beginLine);
+        if(exp == null && e.subPrograma.tipo != Tipo.VOID) throw new RuntimeException("ERRO: Valor de retorno diferente do especifidado na declaração da função. \r\nLine: " + t.beginLine);
 
-        Compiler.pilhaDeEscopos.peek().hasReturn = true;
+        if( !(exp == null && e.subPrograma.tipo == Tipo.VOID) && e.subPrograma.tipo != exp.tipo) throw new RuntimeException("ERRO: Valor de retorno diferente do especifidado na declaração da função. \r\nLine: " + t.beginLine);
+
+        e.hasReturn = true;
     }
 }
 
@@ -567,7 +583,7 @@ Expressao operadorTern():
     Expressao exp = null;
 }
 {
-    (exp = expressao() [<QUESTION> exp = expressao() <COLON> exp = expressao()] )
+    (exp = expressao() (<QUESTION> exp = expressao() <COLON> exp = expressao())? )
     {
 
         return exp;
@@ -579,7 +595,7 @@ Expressao expressao() :
     Expressao exp = null;
 }
 {
-    (exp = LogicalOR()) //asdasdsd
+    (exp = LogicalOR() /*| exp = operadorTern()*/) //asdasdsd
     {
         return exp;
     }

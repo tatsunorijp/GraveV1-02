@@ -14,11 +14,13 @@ public class Escopo {
     // Escopo pai
     public Escopo escopoPai = null;
 
-    public Boolean isGlobal = false;
-    public Boolean isLoopOrCond = false;
-    public Boolean isProcedure = false;
-    public Boolean isFunc = false;
-    public Boolean hasReturn = false;
+    //public Boolean isGlobal = false; // se o escopo for global. nao pode haver RETURN
+    public Boolean isLoopOrCond = false; // usado para verificação de STOP ou SKIP
+    //public Boolean isProcedure = false;
+    //public Boolean isFunc = false;
+    public Boolean hasReturn = false; // usado para verificar se houve comando RETURN na funcao
+    public SubPrograma subPrograma = null; // usado para verificar RETURN
+
 
     public Escopo(Escopo escopo){
         escopoPai = escopo;
